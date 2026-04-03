@@ -1,7 +1,7 @@
 import { Article } from '../types';
 
-const NEWS_API_BASE_URL = process.env.NEWS_API_BASE_URL || 'https://newsapi.org/v2';
-const NEWS_API_KEY = process.env.NEWS_API_KEY;
+const NEWS_API_BASE_URL = import.meta.env.VITE_NEWS_API_BASE_URL || 'https://newsapi.org/v2';
+const NEWS_API_KEY = import.meta.env.VITE_NEWS_API_KEY;
 
 const CATEGORY_FEEDS: Array<{ apiCategory: string; displayCategory: string }> = [
   { apiCategory: 'technology', displayCategory: 'Technology' },
@@ -103,7 +103,7 @@ function normalizeArticle(article: NewsApiArticle, category: string, index: numb
 
 async function fetchCategoryArticles(category: (typeof CATEGORY_FEEDS)[number]): Promise<Article[]> {
   if (!NEWS_API_KEY) {
-    throw new Error('NEWS_API_KEY is required to fetch live news.');
+    throw new Error('VITE_NEWS_API_KEY is required to fetch live news.');
   }
 
   const url = new URL(`${NEWS_API_BASE_URL.replace(/\/$/, '')}/top-headlines`);

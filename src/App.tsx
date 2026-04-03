@@ -31,8 +31,8 @@ import { Article } from './types';
 import { fetchNewsArticles } from './services/newsService';
 
 const openai = new OpenAI({
-  apiKey: process.env.POKE_API_KEY,
-  baseURL: process.env.POKE_API_BASE_URL,
+  apiKey: import.meta.env.VITE_POKE_API_KEY,
+  baseURL: import.meta.env.VITE_POKE_API_BASE_URL,
   dangerouslyAllowBrowser: true,
 });
 
@@ -130,7 +130,7 @@ export default function App() {
       setIsGeneratingDigest(true);
       try {
         const response = await openai.chat.completions.create({
-          model: process.env.POKE_MODEL || 'gpt-4o-mini',
+          model: import.meta.env.VITE_POKE_MODEL || 'gpt-4o-mini',
           messages: [
             {
               role: 'system',
