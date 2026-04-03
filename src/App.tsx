@@ -53,6 +53,10 @@ export default function App() {
   const [dateRange, setDateRange] = useState<{ start: string; end: string }>({ start: '', end: '' });
 
   useEffect(() => {
+    document.title = 'TheNewNews';
+  }, []);
+
+  useEffect(() => {
     let isMounted = true;
 
     const loadArticles = async () => {
@@ -147,7 +151,8 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
           temperature: 0.3,
         });
 
-        setAiDigest(response.choices[0]?.message?.content || '');
+        const digest = response.choices[0]?.message?.content?.trim();
+        setAiDigest(digest || 'Live articles are loaded, but the digest response was empty.');
       } catch (error) {
         console.error('AI Digest generation failed:', error);
         setAiDigest('Failed to generate live digest.');
@@ -238,23 +243,18 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Category Filter */}
                 <div>
-                  <div className="flex items-center gap-2 mb-4 opacity-40">
-                    <Filter size={14} />
-                    <span className="text-[10px] font-mono uppercase tracking-widest">Category</span>
-                  </div>
+                  <label className="text-[10px] font-mono uppercase tracking-widest opacity-40 mb-3 block">Category</label>
                   <div className="flex flex-wrap gap-2">
-                    {availableCategories.map(cat => (
+                    {availableCategories.map((category) => (
                       <button
-                        key={cat}
-                        onClick={() => setSelectedCategory(cat)}
+                        key={category}
+                        onClick={() => setSelectedCategory(category)}
                         className={cn(
-                          "px-3 py-1 rounded-full text-[10px] font-mono uppercase transition-all",
-                          selectedCategory === cat 
-                            ? "bg-ink text-base" 
-                            : "border border-line hover:border-ink/40"
+                          "px-3 py-1 rounded-full text-[10px] font-mono uppercase transition-colors",
+                          selectedCategory === category ? "bg-ink text-base" : "bg-ink/5 hover:bg-ink/10"
                         )}
                       >
-                        {cat}
+                        {category}
                       </button>
                     ))}
                   </div>
@@ -262,20 +262,15 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
 
                 {/* Author Filter */}
                 <div>
-                  <div className="flex items-center gap-2 mb-4 opacity-40">
-                    <User size={14} />
-                    <span className="text-[10px] font-mono uppercase tracking-widest">Analyst</span>
-                  </div>
+                  <label className="text-[10px] font-mono uppercase tracking-widest opacity-40 mb-3 block">Source</label>
                   <div className="flex flex-wrap gap-2">
-                    {availableAuthors.map(author => (
+                    {availableAuthors.map((author) => (
                       <button
                         key={author}
                         onClick={() => setSelectedAuthor(author)}
                         className={cn(
-                          "px-3 py-1 rounded-full text-[10px] font-mono uppercase transition-all",
-                          selectedAuthor === author 
-                            ? "bg-ink text-base" 
-                            : "border border-line hover:border-ink/40"
+                          "px-3 py-1 rounded-full text-[10px] font-mono uppercase transition-colors",
+                          selectedAuthor === author ? "bg-ink text-base" : "bg-ink/5 hover:bg-ink/10"
                         )}
                       >
                         {author}
@@ -284,19 +279,17 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
                   </div>
                 </div>
 
-                {/* Date Filter */}
+                {/* Date Range Filter */}
                 <div>
-                  <div className="flex items-center gap-2 mb-4 opacity-40">
-                    <Calendar size={14} />
-                    <span className="text-[10px] font-mono uppercase tracking-widest">Temporal Range</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <label className="text-[10px] font-mono uppercase tracking-widest opacity-40 mb-3 block">Date Range</label>
+                  <div className="flex gap-2 items-center">
                     <input 
                       type="date"
                       value={dateRange.start}
                       onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
                       className="bg-transparent border border-line rounded-lg px-3 py-2 text-[10px] font-mono uppercase focus:ring-ink focus:border-ink"
                     />
+                    <span className="opacity-20">—</span>
                     <input 
                       type="date"
                       value={dateRange.end}

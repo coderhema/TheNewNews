@@ -23,8 +23,10 @@ type NewsApiArticle = {
 };
 
 type NewsApiResponse = {
-  status: 'ok' | 'error';
+  status?: 'ok' | 'error';
   articles?: NewsApiArticle[];
+  data?: { articles?: NewsApiArticle[] };
+  results?: NewsApiArticle[];
   message?: string;
 };
 
@@ -65,6 +67,10 @@ function summarizeText(...parts: Array<string | null | undefined>) {
     return 'Live coverage and reporting from a major news outlet.';
   }
   return combined.length > 220 ? `${combined.slice(0, 217).trimEnd()}...` : combined;
+}
+
+function extractArticles(payload: NewsApiResponse) {
+  return payload.articles ?? payload.data?.articles ?? payload.results ?? [];
 }
 
 function normalizeArticle(article: NewsApiArticle, category: string, index: number): Article | null {
@@ -112,11 +118,13 @@ async function fetchCategoryArticles(category: (typeof CATEGORY_FEEDS)[number]):
   }
 
   const payload = (await response.json()) as NewsApiResponse;
-  if (payload.status !== 'ok') {
+  const articles = extractArticles(payload);
+
+  if (payload.status === 'error' && !articles.length) {
     throw new Error(payload.message || `News request failed for ${category.displayCategory}`);
   }
 
-  return (payload.articles || [])
+  return articles
     .map((article, index) => normalizeArticle(article, category.displayCategory, index))
     .filter((article): article is Article => Boolean(article));
 }
@@ -124,7 +132,17 @@ async function fetchCategoryArticles(category: (typeof CATEGORY_FEEDS)[number]):
 export async function fetchNewsArticles(limit = 8): Promise<Article[]> {
   const results = await Promise.allSettled(CATEGORY_FEEDS.map(fetchCategoryArticles));
 
-  const merged = results.flatMap((result) => (result.status === 'fulfilled' ? result.value : []));
+  const fulfilled = results.filter((result): result is PromiseFulfilledResult<Article[]> => result.status === 'fulfilled');
+  const merged = fulfilled.flatMap((result) => result.value);
+
+  if (!merged.length) {
+    const firstError = results.find((result): result is PromiseRejectedResult => result.status === 'rejected');
+    if (firstError) {
+      throw firstError.reason instanceof Error ? firstError.reason : new Error(String(firstError.reason));
+    }
+    throw new Error('No news articles were returned from the provider.');
+  }
+
   const deduped = Array.from(new Map(merged.map((article) => [article.id, article])).values());
 
   return deduped
