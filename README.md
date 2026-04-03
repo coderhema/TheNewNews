@@ -12,7 +12,7 @@ TheNewNews is an AI-powered news reader that combines live NewsAPI headlines wit
 - React 19
 - Tailwind CSS v4
 - OpenAI SDK configured for the Poke API
-- NewsAPI for live headline fetching
+- NewsAPI via a Vercel Serverless Function proxy
 
 ## Features
 
@@ -23,7 +23,7 @@ TheNewNews is an AI-powered news reader that combines live NewsAPI headlines wit
 
 ## Environment variables
 
-This app is built with Vite, so browser-exposed variables must use the VITE_ prefix.
+Client-side Vite variables must use the VITE_ prefix.
 
 Create a .env.local file with values like:
 
@@ -31,26 +31,29 @@ Create a .env.local file with values like:
 VITE_POKE_API_KEY="your_poke_api_key"
 VITE_POKE_API_BASE_URL="https://api.poke.com/v1"
 VITE_POKE_MODEL="gpt-4o-mini"
-VITE_NEWS_API_KEY="your_newsapi_key"
-VITE_NEWS_API_BASE_URL="https://newsapi.org/v2"
+NEWS_API_KEY="your_newsapi_key"
+NEWS_API_BASE_URL="https://newsapi.org/v2"
 ```
 
-If you are deploying to Vercel, add the same variables in the project environment settings.
+The Poke API values are read by the client app. The NewsAPI key is used by /api/news on the server side.
+
+If you are deploying to Vercel, add the VITE_ client variables and NEWS_API_KEY in the project environment settings.
 
 ## Local setup
 
 1. Install dependencies:
    npm install
 2. Create .env.local with the environment variables above.
-3. Start the development server:
+3. Start the frontend:
    npm run dev
-4. Open the app in your browser on the local Vite port.
+4. For the live news proxy locally, run Vercel development mode as well:
+   vercel dev
 
 ## Deployment to Vercel
 
 1. Push the repository to GitHub.
 2. Import the project into Vercel.
-3. Set the VITE_ environment variables in the Vercel project settings.
+3. Set the VITE_ client variables and NEWS_API_KEY in the Vercel project settings.
 4. Deploy using the default Vite build command:
    - Build command: npm run build
    - Output directory: dist
@@ -61,5 +64,5 @@ The AI News Digest uses the current set of fetched articles and sends them to th
 
 ## Notes
 
-- If NewsAPI requests are rate-limited or blocked in a browser environment, consider routing them through a Vercel serverless function.
+- NewsAPI now loads through /api/news so browser-side CORS and client-side free-tier restrictions are avoided.
 - The application title is set to TheNewNews in both index.html and the React app shell.
