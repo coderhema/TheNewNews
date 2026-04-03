@@ -21,9 +21,13 @@ import {
   Check,
   Twitter,
   Linkedin,
-  Link as LinkIcon
+  Link as LinkIcon,
+  X,
+  Filter,
+  Calendar,
+  User
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import Markdown from 'react-markdown';
 import { GoogleGenAI } from "@google/genai";
 import { cn } from './lib/utils';
@@ -39,6 +43,39 @@ export default function App() {
   const [isGeneratingDigest, setIsGeneratingDigest] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   
+  // Search and Filter State
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [selectedAuthor, setSelectedAuthor] = useState<string>('All');
+  const [dateRange, setDateRange] = useState<{ start: string; end: string }>({ start: '', end: '' });
+
+  const filteredArticles = articles.filter(article => {
+    const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         article.summary.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === 'All' || article.category === selectedCategory;
+    const matchesAuthor = selectedAuthor === 'All' || article.author === selectedAuthor;
+    
+    let matchesDate = true;
+    if (dateRange.start || dateRange.end) {
+      const articleDate = new Date(article.timestamp);
+      const start = dateRange.start ? startOfDay(new Date(dateRange.start)) : new Date(0);
+      const end = dateRange.end ? endOfDay(new Date(dateRange.end)) : new Date();
+      matchesDate = isWithinInterval(articleDate, { start, end });
+    }
+
+    return matchesSearch && matchesCategory && matchesAuthor && matchesDate;
+  });
+
+  // Dynamic filter options based on current search query (ignoring other filters for options)
+  const searchMatches = articles.filter(article => 
+    article.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    article.summary.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const availableCategories = ['All', ...new Set(searchMatches.map(a => a.category))];
+  const availableAuthors = ['All', ...new Set(searchMatches.map(a => a.author))];
+
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -110,14 +147,137 @@ export default function App() {
             <span className="mx-2">/</span>
             <span>{format(currentTime, 'MMM dd, yyyy')}</span>
           </div>
-          <button className="p-2 hover:bg-ink/5 rounded-full transition-colors">
-            <Search size={18} strokeWidth={1.5} />
+          <button 
+            onClick={() => setIsSearchOpen(!isSearchOpen)}
+            className={cn(
+              "p-2 rounded-full transition-colors",
+              isSearchOpen ? "bg-ink text-base" : "hover:bg-ink/5"
+            )}
+          >
+            {isSearchOpen ? <X size={18} strokeWidth={1.5} /> : <Search size={18} strokeWidth={1.5} />}
           </button>
           <button className="p-2 hover:bg-ink/5 rounded-full transition-colors">
             <Menu size={18} strokeWidth={1.5} />
           </button>
         </div>
       </nav>
+
+      {/* Search and Filter Overlay */}
+      <AnimatePresence>
+        {isSearchOpen && (
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="bg-base border-b border-line overflow-hidden sticky top-[69px] z-40"
+          >
+            <div className="px-6 py-8 max-w-7xl mx-auto">
+              <div className="flex items-center gap-4 mb-8">
+                <Search size={24} className="opacity-20" />
+                <input 
+                  type="text"
+                  placeholder="Search intelligence reports..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="flex-1 bg-transparent border-none text-2xl md:text-4xl font-serif focus:ring-0 placeholder:opacity-20"
+                  autoFocus
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Category Filter */}
+                <div>
+                  <div className="flex items-center gap-2 mb-4 opacity-40">
+                    <Filter size={14} />
+                    <span className="text-[10px] font-mono uppercase tracking-widest">Category</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {availableCategories.map(cat => (
+                      <button
+                        key={cat}
+                        onClick={() => setSelectedCategory(cat)}
+                        className={cn(
+                          "px-3 py-1 rounded-full text-[10px] font-mono uppercase transition-all",
+                          selectedCategory === cat 
+                            ? "bg-ink text-base" 
+                            : "border border-line hover:border-ink/40"
+                        )}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Author Filter */}
+                <div>
+                  <div className="flex items-center gap-2 mb-4 opacity-40">
+                    <User size={14} />
+                    <span className="text-[10px] font-mono uppercase tracking-widest">Analyst</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {availableAuthors.map(author => (
+                      <button
+                        key={author}
+                        onClick={() => setSelectedAuthor(author)}
+                        className={cn(
+                          "px-3 py-1 rounded-full text-[10px] font-mono uppercase transition-all",
+                          selectedAuthor === author 
+                            ? "bg-ink text-base" 
+                            : "border border-line hover:border-ink/40"
+                        )}
+                      >
+                        {author}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Date Filter */}
+                <div>
+                  <div className="flex items-center gap-2 mb-4 opacity-40">
+                    <Calendar size={14} />
+                    <span className="text-[10px] font-mono uppercase tracking-widest">Temporal Range</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input 
+                      type="date"
+                      value={dateRange.start}
+                      onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+                      className="bg-transparent border border-line rounded-lg px-3 py-2 text-[10px] font-mono uppercase focus:ring-ink focus:border-ink"
+                    />
+                    <input 
+                      type="date"
+                      value={dateRange.end}
+                      onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+                      className="bg-transparent border border-line rounded-lg px-3 py-2 text-[10px] font-mono uppercase focus:ring-ink focus:border-ink"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {(searchQuery || selectedCategory !== 'All' || selectedAuthor !== 'All' || dateRange.start || dateRange.end) && (
+                <div className="mt-8 pt-8 border-t border-line flex justify-between items-center">
+                  <div className="text-[10px] font-mono uppercase opacity-40">
+                    {filteredArticles.length} Results found
+                  </div>
+                  <button 
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSelectedCategory('All');
+                      setSelectedAuthor('All');
+                      setDateRange({ start: '', end: '' });
+                    }}
+                    className="text-[10px] font-mono uppercase tracking-widest hover:underline"
+                  >
+                    Reset Intelligence Parameters
+                  </button>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <main className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_400px] xl:grid-cols-[1fr_480px]">
         {/* Main Feed */}
@@ -141,18 +301,25 @@ export default function App() {
           </header>
 
           <div className="grid grid-cols-1 md:grid-cols-2">
-            {articles.map((article, idx) => (
-              <ArticleCard 
-                key={article.id} 
-                article={article} 
-                isFeatured={idx === 0}
-                className={cn(
-                  "border-b border-line p-6 md:p-10",
-                  idx % 2 === 0 ? "md:border-r" : ""
-                )}
-                onClick={() => setSelectedArticle(article)}
-              />
-            ))}
+            {filteredArticles.length > 0 ? (
+              filteredArticles.map((article, idx) => (
+                <ArticleCard 
+                  key={article.id} 
+                  article={article} 
+                  isFeatured={idx === 0 && !searchQuery}
+                  className={cn(
+                    "border-b border-line p-6 md:p-10",
+                    idx % 2 === 0 ? "md:border-r" : ""
+                  )}
+                  onClick={() => setSelectedArticle(article)}
+                />
+              ))
+            ) : (
+              <div className="col-span-2 p-20 text-center">
+                <div className="text-4xl font-serif italic opacity-20 mb-4">No intelligence matches found.</div>
+                <p className="text-sm opacity-40 font-mono uppercase tracking-widest">Broaden your search parameters.</p>
+              </div>
+            )}
           </div>
         </div>
 
