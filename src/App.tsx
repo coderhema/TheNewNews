@@ -30,6 +30,41 @@ import { cn } from './lib/utils';
 import { Article } from './types';
 import { fetchNewsArticles } from './services/newsService';
 
+const SITE_NAME = 'TheNewNews';
+const SITE_URL = 'https://thenewnews.vercel.app';
+const SITE_DESCRIPTION = 'TheNewNews delivers live news headlines and an AI News Digest powered by Poke API and NewsAPI.';
+const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.svg`;
+
+function updateMetaTag(selector: string, attribute: 'name' | 'property', value: string) {
+  let tag = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${selector}"]`);
+  if (!tag) {
+    tag = document.createElement("meta");
+    tag.setAttribute(attribute, selector);
+    document.head.appendChild(tag);
+  }
+  tag.setAttribute("content", value);
+}
+
+function updatePageMetadata(article: Article | null) {
+  const title = article ? `${article.title} | ${SITE_NAME}` : SITE_NAME;
+  const description = article?.summary || SITE_DESCRIPTION;
+  const image = article?.imageUrl || DEFAULT_OG_IMAGE;
+  const url = article ? `${SITE_URL}/article/${encodeURIComponent(article.id)}` : SITE_URL;
+
+  document.title = title;
+  updateMetaTag('description', 'name', description);
+  updateMetaTag('og:type', 'property', 'website');
+  updateMetaTag('og:site_name', 'property', SITE_NAME);
+  updateMetaTag('og:title', 'property', title);
+  updateMetaTag('og:description', 'property', description);
+  updateMetaTag('og:image', 'property', image);
+  updateMetaTag('og:url', 'property', url);
+  updateMetaTag('twitter:card', 'name', 'summary_large_image');
+  updateMetaTag('twitter:title', 'name', title);
+  updateMetaTag('twitter:description', 'name', description);
+  updateMetaTag('twitter:image', 'name', image);
+}
+
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_POKE_API_KEY,
   baseURL: import.meta.env.VITE_POKE_API_BASE_URL,
@@ -53,7 +88,7 @@ export default function App() {
   const [dateRange, setDateRange] = useState<{ start: string; end: string }>({ start: '', end: '' });
 
   useEffect(() => {
-    document.title = 'TheNewNews';
+    updatePageMetadata(null);
   }, []);
 
   useEffect(() => {
@@ -89,6 +124,30 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!articles.length) {
+      return;
+    }
+
+    const articlePrefix = '/article/';
+    const pathname = window.location.pathname;
+
+    if (!pathname.startsWith(articlePrefix)) {
+      return;
+    }
+
+    const rawId = pathname.slice(articlePrefix.length);
+    const decodedId = decodeURIComponent(rawId);
+    const match = articles.find((article) => article.id === decodedId || encodeURIComponent(article.id) === rawId || article.id === rawId);
+
+    if (match) {
+      setSelectedArticle(match);
+    }
+  }, [articles]);
+
+  useEffect(() => {
+    updatePageMetadata(selectedArticle);
+  }, [selectedArticle]);
   const filteredArticles = articles.filter(article => {
     const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          article.summary.toLowerCase().includes(searchQuery.toLowerCase());
@@ -165,7 +224,7 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
   }, [articles]);
 
   const handleShare = (article: Article) => {
-    const url = `${window.location.origin}/article/${article.id}`;
+    const url = `${window.location.origin}/article/${encodeURIComponent(article.id)}`;
     if (navigator.share) {
       navigator.share({
         title: article.title,
@@ -624,7 +683,7 @@ function ShareButton({ article, className }: { article: Article; className?: str
 
   const handleShare = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const url = `${window.location.origin}/article/${article.id}`;
+    const url = `${window.location.origin}/article/${encodeURIComponent(article.id)}`;
     
     if (navigator.share) {
       navigator.share({
