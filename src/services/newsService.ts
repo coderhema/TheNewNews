@@ -1,108 +1,133 @@
 import { Article } from '../types';
 
-export const MOCK_ARTICLES: Article[] = [
-  {
-    id: '1',
-    title: 'The Silicon Renaissance: Autonomous Agents Redefining Global Trade',
-    summary: 'A deep dive into how decentralized AI clusters are negotiating cross-border logistics without human intervention, leading to a 14% increase in supply chain efficiency.',
-    content: 'Full content here...',
-    author: 'Elena Vance',
-    category: 'Technology',
-    timestamp: new Date().toISOString(),
-    imageUrl: 'https://picsum.photos/seed/tech1/1200/800',
-    readingTime: '8 min',
-    importance: 'high',
-    source: 'The Global Intelligence'
-  },
-  {
-    id: '2',
-    title: 'Architectural Minimalism in the Age of Digital Noise',
-    summary: 'Why the world’s leading designers are returning to the principles of the Swiss Grid to combat the cognitive load of modern interfaces.',
-    content: 'Full content here...',
-    author: 'Julian Thorne',
-    category: 'Design',
-    timestamp: new Date(Date.now() - 3600000).toISOString(),
-    imageUrl: 'https://picsum.photos/seed/design1/1200/800',
-    readingTime: '5 min',
-    importance: 'medium',
-    source: 'Design Quarterly'
-  },
-  {
-    id: '3',
-    title: 'Quantum Computing: The First Stable Qubit at Room Temperature',
-    summary: 'Researchers in Zurich have achieved what was once thought impossible, paving the way for consumer-grade quantum processors.',
-    content: 'Full content here...',
-    author: 'Dr. Sarah Chen',
-    category: 'Science',
-    timestamp: new Date(Date.now() - 7200000).toISOString(),
-    imageUrl: 'https://picsum.photos/seed/science1/1200/800',
-    readingTime: '12 min',
-    importance: 'high',
-    source: 'Nature Systems'
-  },
-  {
-    id: '4',
-    title: 'The Future of Sovereign Wealth: AI Curated Portfolios',
-    summary: 'National funds are increasingly turning to autonomous algorithms to manage multi-trillion dollar assets with unprecedented risk mitigation.',
-    content: 'Full content here...',
-    author: 'Marcus Aurelius',
-    category: 'Finance',
-    timestamp: new Date(Date.now() - 10800000).toISOString(),
-    imageUrl: 'https://picsum.photos/seed/finance1/1200/800',
-    readingTime: '7 min',
-    importance: 'medium',
-    source: 'Financial Times'
-  },
-  {
-    id: '5',
-    title: 'Urban Re-wilding: The Tokyo Experiment',
-    summary: 'How the world’s most populous city is integrating vertical forests into its skyline to combat the heat island effect.',
-    content: 'Full content here...',
-    author: 'Kaito Nakamura',
-    category: 'Environment',
-    timestamp: new Date(Date.now() - 14400000).toISOString(),
-    imageUrl: 'https://picsum.photos/seed/env1/1200/800',
-    readingTime: '6 min',
-    importance: 'low',
-    source: 'Eco Urbanist'
-  },
-  {
-    id: '6',
-    title: 'The Rise of Synthetic Biology in Sustainable Textiles',
-    summary: 'Lab-grown leather and spider silk are moving from high-fashion runways to mass-market production lines.',
-    content: 'Full content here...',
-    author: 'Sophia Rossi',
-    category: 'Innovation',
-    timestamp: new Date(Date.now() - 18000000).toISOString(),
-    imageUrl: 'https://picsum.photos/seed/bio1/1200/800',
-    readingTime: '4 min',
-    importance: 'medium',
-    source: 'BioTech Review'
-  },
-  {
-    id: '7',
-    title: 'Global Semiconductor Shortage: The End in Sight?',
-    summary: 'New fabrication plants in Arizona and Germany are finally reaching full capacity, easing the multi-year strain on electronics.',
-    content: 'Full content here...',
-    author: 'David Wu',
-    category: 'Technology',
-    timestamp: new Date(Date.now() - 21600000).toISOString(),
-    imageUrl: 'https://picsum.photos/seed/semi1/1200/800',
-    readingTime: '6 min',
-    importance: 'high',
-    source: 'TechCrunch'
-  },
-  {
-    id: '8',
-    title: 'The Renaissance of Rail: High-Speed Networks Across Africa',
-    summary: 'A multi-national consortium is breaking ground on a trans-continental high-speed rail network connecting major economic hubs.',
-    content: 'Full content here...',
-    author: 'Amara Okafor',
-    category: 'Infrastructure',
-    timestamp: new Date(Date.now() - 25200000).toISOString(),
-    imageUrl: 'https://picsum.photos/seed/rail1/1200/800',
-    readingTime: '9 min',
-    importance: 'medium',
-    source: 'Infrastructure World'
-  }
+const NEWS_API_BASE_URL = process.env.NEWS_API_BASE_URL || 'https://newsapi.org/v2';
+const NEWS_API_KEY = process.env.NEWS_API_KEY;
+
+const CATEGORY_FEEDS: Array<{ apiCategory: string; displayCategory: string }> = [
+  { apiCategory: 'technology', displayCategory: 'Technology' },
+  { apiCategory: 'business', displayCategory: 'Business' },
+  { apiCategory: 'science', displayCategory: 'Science' },
+  { apiCategory: 'general', displayCategory: 'World' },
+  { apiCategory: 'health', displayCategory: 'Health' },
 ];
+
+type NewsApiArticle = {
+  source?: { id?: string | null; name?: string };
+  author?: string | null;
+  title?: string | null;
+  description?: string | null;
+  url?: string | null;
+  urlToImage?: string | null;
+  publishedAt?: string | null;
+  content?: string | null;
+};
+
+type NewsApiResponse = {
+  status: 'ok' | 'error';
+  articles?: NewsApiArticle[];
+  message?: string;
+};
+
+function toDisplaySourceName(source?: { id?: string | null; name?: string }) {
+  return source?.name?.trim() || source?.id?.trim() || 'News Desk';
+}
+
+function capitalizeCategory(category: string) {
+  return category.charAt(0).toUpperCase() + category.slice(1);
+}
+
+function buildFallbackImage(seed: string) {
+  return `https://picsum.photos/seed/${encodeURIComponent(seed)}/1200/800`;
+}
+
+function getReadingTime(text: string) {
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  const minutes = Math.max(1, Math.ceil(words / 220));
+  return `${minutes} min`;
+}
+
+function getImportance(category: string, sourceName: string) {
+  const highPrioritySources = ['Reuters', 'Associated Press', 'Financial Times', 'BBC News', 'CNN', 'TechCrunch'];
+  if (highPrioritySources.includes(sourceName)) {
+    return 'high' as const;
+  }
+
+  if (['technology', 'business', 'science'].includes(category.toLowerCase())) {
+    return 'medium' as const;
+  }
+
+  return 'low' as const;
+}
+
+function summarizeText(...parts: Array<string | null | undefined>) {
+  const combined = parts.filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+  if (!combined) {
+    return 'Live coverage and reporting from a major news outlet.';
+  }
+  return combined.length > 220 ? `${combined.slice(0, 217).trimEnd()}...` : combined;
+}
+
+function normalizeArticle(article: NewsApiArticle, category: string, index: number): Article | null {
+  const title = article.title?.trim();
+  const publishedAt = article.publishedAt || new Date().toISOString();
+
+  if (!title || !article.url) {
+    return null;
+  }
+
+  const sourceName = toDisplaySourceName(article.source);
+  const contentSummary = summarizeText(article.description, article.content);
+  const content = summarizeText(article.content, article.description);
+  const seed = `${category}-${index}-${title}`;
+
+  return {
+    id: article.url,
+    title,
+    summary: contentSummary,
+    content,
+    author: article.author?.trim() || sourceName,
+    category: capitalizeCategory(category),
+    timestamp: publishedAt,
+    imageUrl: article.urlToImage || buildFallbackImage(seed),
+    readingTime: getReadingTime(contentSummary),
+    importance: getImportance(category, sourceName),
+    source: sourceName,
+  };
+}
+
+async function fetchCategoryArticles(category: (typeof CATEGORY_FEEDS)[number]): Promise<Article[]> {
+  if (!NEWS_API_KEY) {
+    throw new Error('NEWS_API_KEY is required to fetch live news.');
+  }
+
+  const url = new URL(`${NEWS_API_BASE_URL.replace(/\/$/, '')}/top-headlines`);
+  url.searchParams.set('country', 'us');
+  url.searchParams.set('category', category.apiCategory);
+  url.searchParams.set('pageSize', '10');
+  url.searchParams.set('apiKey', NEWS_API_KEY);
+
+  const response = await fetch(url.toString());
+  if (!response.ok) {
+    throw new Error(`News request failed for ${category.displayCategory}: ${response.status}`);
+  }
+
+  const payload = (await response.json()) as NewsApiResponse;
+  if (payload.status !== 'ok') {
+    throw new Error(payload.message || `News request failed for ${category.displayCategory}`);
+  }
+
+  return (payload.articles || [])
+    .map((article, index) => normalizeArticle(article, category.displayCategory, index))
+    .filter((article): article is Article => Boolean(article));
+}
+
+export async function fetchNewsArticles(limit = 8): Promise<Article[]> {
+  const results = await Promise.allSettled(CATEGORY_FEEDS.map(fetchCategoryArticles));
+
+  const merged = results.flatMap((result) => (result.status === 'fulfilled' ? result.value : []));
+  const deduped = Array.from(new Map(merged.map((article) => [article.id, article])).values());
+
+  return deduped
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    .slice(0, limit);
+}

@@ -8,7 +8,11 @@ export default defineConfig(({mode}) => {
   return {
     plugins: [react(), tailwindcss()],
     define: {
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+      'process.env.POKE_API_KEY': JSON.stringify(env.POKE_API_KEY),
+      'process.env.POKE_API_BASE_URL': JSON.stringify(env.POKE_API_BASE_URL),
+      'process.env.POKE_MODEL': JSON.stringify(env.POKE_MODEL),
+      'process.env.NEWS_API_KEY': JSON.stringify(env.NEWS_API_KEY),
+      'process.env.NEWS_API_BASE_URL': JSON.stringify(env.NEWS_API_BASE_URL),
     },
     resolve: {
       alias: {

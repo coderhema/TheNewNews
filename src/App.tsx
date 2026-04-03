@@ -11,7 +11,6 @@ import {
   ArrowUpRight, 
   Clock, 
   Zap, 
-  Globe, 
   Shield, 
   Cpu,
   ChevronRight,
@@ -19,9 +18,6 @@ import {
   Activity,
   Share2,
   Check,
-  Twitter,
-  Linkedin,
-  Link as LinkIcon,
   X,
   Filter,
   Calendar,
@@ -29,18 +25,24 @@ import {
 } from 'lucide-react';
 import { format, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import Markdown from 'react-markdown';
-import { GoogleGenAI } from "@google/genai";
+import OpenAI from 'openai';
 import { cn } from './lib/utils';
-import { Article, AIDigest } from './types';
-import { MOCK_ARTICLES } from './services/newsService';
+import { Article } from './types';
+import { fetchNewsArticles } from './services/newsService';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const openai = new OpenAI({
+  apiKey: process.env.POKE_API_KEY,
+  baseURL: process.env.POKE_API_BASE_URL,
+  dangerouslyAllowBrowser: true,
+});
 
 export default function App() {
-  const [articles] = useState<Article[]>(MOCK_ARTICLES);
+  const [articles, setArticles] = useState<Article[]>([]);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [aiDigest, setAiDigest] = useState<string>('');
   const [isGeneratingDigest, setIsGeneratingDigest] = useState(false);
+  const [isLoadingArticles, setIsLoadingArticles] = useState(true);
+  const [articlesError, setArticlesError] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   
   // Search and Filter State
@@ -49,6 +51,39 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedAuthor, setSelectedAuthor] = useState<string>('All');
   const [dateRange, setDateRange] = useState<{ start: string; end: string }>({ start: '', end: '' });
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadArticles = async () => {
+      setIsLoadingArticles(true);
+      setArticlesError(null);
+
+      try {
+        const liveArticles = await fetchNewsArticles();
+        if (!isMounted) {
+          return;
+        }
+        setArticles(liveArticles);
+      } catch (error) {
+        console.error('News loading failed:', error);
+        if (isMounted) {
+          setArticles([]);
+          setArticlesError('Live news could not be loaded right now.');
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoadingArticles(false);
+        }
+      }
+    };
+
+    loadArticles();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const filteredArticles = articles.filter(article => {
     const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -81,32 +116,48 @@ export default function App() {
     return () => clearInterval(timer);
   }, []);
 
-  const generateAIDigest = async () => {
-    setIsGeneratingDigest(true);
-    try {
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: `Analyze these news articles and provide a concise, informative summary for each of the top 8 articles. 
-        Each summary should be exactly one or two sentences, allowing users to quickly grasp the main points.
-        Crucially, for each summary, explicitly mention the source of the information (e.g., "According to [Source], ...").
-        
-        Articles:
-        ${articles.map((a, i) => `${i + 1}. ${a.title} (Source: ${a.source}): ${a.summary}`).join('\n')}
-        
-        Format the output in clean Markdown as a list of "Top Trending Summaries".`,
-      });
-      setAiDigest(response.text || '');
-    } catch (error) {
-      console.error("AI Digest generation failed:", error);
-      setAiDigest("Failed to generate autonomous digest. System recalibrating.");
-    } finally {
-      setIsGeneratingDigest(false);
-    }
-  };
-
   useEffect(() => {
+    const generateAIDigest = async () => {
+      if (!articles.length) {
+        setAiDigest('No live articles are available yet.');
+        return;
+      }
+
+      setIsGeneratingDigest(true);
+      try {
+        const response = await openai.chat.completions.create({
+          model: process.env.POKE_MODEL || 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'system',
+              content: 'You summarize news clearly and concisely in markdown.',
+            },
+            {
+              role: 'user',
+              content: `Analyze these news articles and provide a concise, informative summary for each of the top ${Math.min(8, articles.length)} articles. 
+Each summary should be exactly one or two sentences, allowing users to quickly grasp the main points.
+Crucially, for each summary, explicitly mention the source of the information (e.g., "According to [Source], ...").
+
+Articles:
+${articles.map((a, i) => `${i + 1}. ${a.title} (Source: ${a.source}): ${a.summary}`).join('\n')}
+
+Format the output in clean Markdown as a list of "Top Trending Summaries".`,
+            },
+          ],
+          temperature: 0.3,
+        });
+
+        setAiDigest(response.choices[0]?.message?.content || '');
+      } catch (error) {
+        console.error('AI Digest generation failed:', error);
+        setAiDigest('Failed to generate live digest.');
+      } finally {
+        setIsGeneratingDigest(false);
+      }
+    };
+
     generateAIDigest();
-  }, []);
+  }, [articles]);
 
   const handleShare = (article: Article) => {
     const url = `${window.location.origin}/article/${article.id}`;
@@ -290,18 +341,27 @@ export default function App() {
             </h1>
             <div className="mt-8 flex flex-wrap gap-4 items-end justify-between">
               <p className="max-w-md text-sm md:text-base opacity-60 leading-relaxed">
-                Elite editorial curation powered by decentralized intelligence. 
-                Monitoring global shifts in real-time with zero human bias.
+                Live news curation powered by Poke API intelligence and headlines from real publishers.
               </p>
               <div className="flex gap-2">
-                <div className="px-3 py-1 border border-line rounded-full text-[10px] font-mono uppercase">v4.2.0-stable</div>
+                <div className="px-3 py-1 border border-line rounded-full text-[10px] font-mono uppercase">v4.2.0-live</div>
                 <div className="px-3 py-1 bg-ink text-base rounded-full text-[10px] font-mono uppercase">Agent Active</div>
               </div>
             </div>
+            {articlesError && (
+              <div className="mt-4 text-sm text-red-500">
+                {articlesError}
+              </div>
+            )}
           </header>
 
           <div className="grid grid-cols-1 md:grid-cols-2">
-            {filteredArticles.length > 0 ? (
+            {isLoadingArticles ? (
+              <div className="col-span-2 p-20 text-center">
+                <div className="text-4xl font-serif italic opacity-20 mb-4">Loading live news.</div>
+                <p className="text-sm opacity-40 font-mono uppercase tracking-widest">Fetching headlines from real sources.</p>
+              </div>
+            ) : filteredArticles.length > 0 ? (
               filteredArticles.map((article, idx) => (
                 <ArticleCard 
                   key={article.id} 
@@ -336,7 +396,7 @@ export default function App() {
               </div>
             </div>
             <button 
-              onClick={generateAIDigest}
+              onClick={() => setArticles([...articles])}
               disabled={isGeneratingDigest}
               className="p-2 hover:bg-base/10 rounded-full transition-colors disabled:opacity-30"
             >
@@ -380,7 +440,7 @@ export default function App() {
                   <span className="text-[10px] font-mono uppercase tracking-widest">Security Alert</span>
                 </div>
                 <p className="text-xs leading-relaxed opacity-70">
-                  Autonomous clusters detected unusual activity in the Zurich quantum node. Monitoring for potential qubit decoherence.
+                  Live headlines are refreshed from public news providers and summarized with the Poke API.
                 </p>
               </div>
             </div>
