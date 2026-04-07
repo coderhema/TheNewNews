@@ -596,10 +596,18 @@ function ArticleDetail({ article, onClose }: { article: Article; onClose: () => 
   });
 
   const importanceColors = {
-    high: 'bg-red-50 text-red-600 border-red-100',
-    medium: 'bg-amber-50 text-amber-600 border-amber-100',
-    low: 'bg-green-50 text-green-600 border-green-100',
+    high: { badge: 'bg-red-50 text-red-600 border-red-100', label: '⚡ Breaking' },
+    medium: { badge: 'bg-amber-50 text-amber-600 border-amber-100', label: '↑ Trending' },
+    low: { badge: 'bg-green-50 text-green-600 border-green-100', label: '● Standard' },
   };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   return (
     <motion.div 
@@ -650,9 +658,9 @@ function ArticleDetail({ article, onClose }: { article: Article; onClose: () => 
             </span>
             <span className={cn(
               "px-3 py-1 text-[10px] font-mono uppercase rounded-full border",
-              importanceColors[article.importance]
+              importanceColors[article.importance].badge
             )}>
-              {article.importance === 'high' ? '⚡ Breaking' : article.importance === 'medium' ? '↑ Trending' : '● Standard'}
+              {importanceColors[article.importance].label}
             </span>
             <span className="px-3 py-1 border border-line text-[10px] font-mono uppercase rounded-full text-ink/50">
               {article.source}
