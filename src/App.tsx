@@ -385,7 +385,7 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
         {/* Main Feed */}
         <div className="border-r border-line">
           <header className="px-6 py-14 md:py-20 border-b border-line relative overflow-hidden">
-            <div className="absolute inset-0 pointer-events-none" style={{background: 'radial-gradient(ellipse 60% 50% at 80% 50%, rgba(220,38,38,0.06) 0%, transparent 70%)'}} />
+            <div className="absolute inset-0 pointer-events-none accent-glow-hero" />
             <div className="flex items-start gap-3 mb-2">
               <span className="mt-2 px-2.5 py-0.5 bg-red-100 text-red-700 text-[10px] font-mono uppercase tracking-widest rounded-full border border-red-200 font-medium">
                 v4.2 · Live
@@ -464,8 +464,8 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
         </div>
 
         {/* AI Digest Sidebar */}
-        <aside className="relative text-base p-6 md:p-10 sticky top-[61px] h-[calc(100vh-61px)] overflow-y-auto" style={{background: 'linear-gradient(160deg, #1a0808 0%, #18181B 60%)'}}>
-          <div className="absolute inset-0 pointer-events-none" style={{background: 'radial-gradient(ellipse 80% 40% at 50% 0%, rgba(220,38,38,0.12) 0%, transparent 60%)'}} />
+        <aside className="sidebar-bg relative text-base p-6 md:p-10 sticky top-[61px] h-[calc(100vh-61px)] overflow-y-auto">
+          <div className="absolute inset-0 pointer-events-none accent-glow-sidebar" />
           <div className="relative z-10 flex items-center justify-between mb-10">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 bg-red-500/20 rounded-xl flex items-center justify-center border border-red-500/20">
@@ -551,7 +551,7 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
 
       {/* Footer */}
       <footer className="relative border-t-0 px-6 py-14 bg-base overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-[2px]" style={{background: 'linear-gradient(90deg, transparent 0%, #DC2626 30%, #F87171 50%, #DC2626 70%, transparent 100%)'}} />
+        <div className="absolute top-0 left-0 right-0 h-[2px] footer-accent-border" />
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
           <div className="col-span-2">
             <div className="text-2xl font-serif font-bold uppercase tracking-tighter mb-1 gradient-text">TheNewNews</div>
@@ -731,7 +731,7 @@ function ArticleDetail({ article, onClose }: { article: Article; onClose: () => 
                 </ul>
               </div>
               
-              <div className="p-5 rounded-2xl text-base" style={{background: 'linear-gradient(160deg, #1a0808 0%, #18181B 100%)'}}>
+              <div className="p-5 sidebar-panel-bg rounded-2xl text-base">
                 <h4 className="text-[10px] font-mono uppercase tracking-widest text-base/40 mb-3">Agent Confidence</h4>
                 <div className="text-4xl font-serif mb-3 text-red-400">98.4%</div>
                 <div className="w-full h-1.5 bg-base/10 rounded-full overflow-hidden">
