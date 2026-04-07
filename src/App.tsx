@@ -892,7 +892,7 @@ function ArticleCard({
 
   const importanceBadge = {
     high: { label: 'Breaking', className: 'text-red-600 bg-red-50 border border-red-200' },
-    medium: { label: 'Trending', className: 'text-amber-600 bg-amber-50 border border-amber-200' },
+    medium: { label: 'Trending', className: 'text-sky-600 bg-sky-50 border border-sky-200' },
     low: { label: null, className: '' },
   }[article.importance];
 
@@ -901,11 +901,10 @@ function ArticleCard({
       whileHover={{ y: -2, boxShadow: '0 8px 32px rgba(0,0,0,0.09)' }}
       transition={{ type: 'spring', stiffness: 300, damping: 24 }}
       className={cn(
-        "group cursor-pointer flex flex-col relative bg-white border border-line/60 rounded-2xl overflow-hidden shadow-sm",
+        "group cursor-pointer flex flex-col relative bg-white border border-line/60 rounded-2xl overflow-hidden shadow-sm p-0",
         className
       )}
       onClick={onClick}
-      style={{ padding: 0 }}
     >
       {/* Category colour stripe */}
       <div className={cn("h-1 w-full shrink-0", catColor.stripe)} />
@@ -959,7 +958,7 @@ function ArticleCard({
 
         {/* Title */}
         <h3 className={cn(
-          "font-serif font-bold leading-tight tracking-tight text-ink group-hover:text-red-700 transition-colors",
+          "font-serif font-bold leading-tight tracking-tight text-ink group-hover:opacity-70 transition-opacity",
           isFeatured ? "text-3xl md:text-4xl mb-4" : "text-xl md:text-2xl mb-3"
         )}>
           {article.title}
