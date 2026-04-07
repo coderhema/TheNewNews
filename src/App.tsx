@@ -237,7 +237,7 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
   return (
     <div className="min-h-screen flex flex-col selection:bg-ink selection:text-base">
       {/* Top Navigation Rail */}
-      <nav className="border-b border-line px-6 py-3.5 flex justify-between items-center sticky top-0 bg-base/90 backdrop-blur-md z-50">
+      <nav className="border-b border-line px-6 pt-4 pb-3.5 flex justify-between items-center sticky top-0 bg-base/95 backdrop-blur-md z-50">
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-2.5">
             <span className="relative flex h-2.5 w-2.5">
@@ -248,7 +248,7 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
           </div>
           <div className="hidden md:flex gap-1">
             {['Intelligence', 'Markets', 'Geopolitics', 'Science'].map((item) => (
-              <button key={item} className="px-3 py-1.5 text-[11px] uppercase tracking-widest font-medium rounded-full hover:bg-ink/5 hover:text-ink transition-all opacity-50 hover:opacity-100">
+              <button key={item} className="px-3 py-1.5 text-[11px] uppercase tracking-widest font-medium rounded-full hover:bg-red-50 hover:text-red-600 transition-all opacity-50 hover:opacity-100">
                 {item}
               </button>
             ))}
@@ -384,9 +384,10 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
       <main className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_400px] xl:grid-cols-[1fr_480px]">
         {/* Main Feed */}
         <div className="border-r border-line">
-          <header className="px-6 py-14 md:py-20 border-b border-line">
+          <header className="px-6 py-14 md:py-20 border-b border-line relative overflow-hidden">
+            <div className="absolute inset-0 pointer-events-none" style={{background: 'radial-gradient(ellipse 60% 50% at 80% 50%, rgba(220,38,38,0.06) 0%, transparent 70%)'}} />
             <div className="flex items-start gap-3 mb-2">
-              <span className="mt-2 px-2.5 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-mono uppercase tracking-widest rounded-full border border-amber-200 font-medium">
+              <span className="mt-2 px-2.5 py-0.5 bg-red-100 text-red-700 text-[10px] font-mono uppercase tracking-widest rounded-full border border-red-200 font-medium">
                 v4.2 · Live
               </span>
             </div>
@@ -463,11 +464,12 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
         </div>
 
         {/* AI Digest Sidebar */}
-        <aside className="bg-ink text-base p-6 md:p-10 sticky top-[61px] h-[calc(100vh-61px)] overflow-y-auto">
-          <div className="flex items-center justify-between mb-10">
+        <aside className="relative text-base p-6 md:p-10 sticky top-[61px] h-[calc(100vh-61px)] overflow-y-auto" style={{background: 'linear-gradient(160deg, #1a0808 0%, #18181B 60%)'}}>
+          <div className="absolute inset-0 pointer-events-none" style={{background: 'radial-gradient(ellipse 80% 40% at 50% 0%, rgba(220,38,38,0.12) 0%, transparent 60%)'}} />
+          <div className="relative z-10 flex items-center justify-between mb-10">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-amber-500/20 rounded-xl flex items-center justify-center border border-amber-500/20">
-                <Cpu size={15} className="text-amber-400" />
+              <div className="w-9 h-9 bg-red-500/20 rounded-xl flex items-center justify-center border border-red-500/20">
+                <Cpu size={15} className="text-red-400" />
               </div>
               <div>
                 <h2 className="text-xs font-mono uppercase tracking-widest text-base/60">AI Digest</h2>
@@ -484,7 +486,7 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
             </button>
           </div>
 
-          <div className="space-y-10">
+          <div className="relative z-10 space-y-10">
             {isGeneratingDigest ? (
               <div className="space-y-5 animate-pulse">
                 <div className="h-3 bg-base/10 w-2/3 rounded-full" />
@@ -501,7 +503,7 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
                 <div className="h-24 bg-base/5 w-full rounded-xl" />
               </div>
             ) : (
-              <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:font-bold prose-headings:tracking-tight prose-a:text-amber-400 prose-strong:text-base/90">
+              <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:font-bold prose-headings:tracking-tight prose-a:text-red-400 prose-strong:text-base/90">
                 <div className="opacity-85 leading-relaxed font-light text-sm">
                   <Markdown>{aiDigest}</Markdown>
                 </div>
@@ -524,8 +526,8 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
               </div>
             </div>
 
-            <div className="p-5 bg-amber-500/8 border border-amber-500/15 rounded-2xl">
-              <div className="flex items-center gap-2 text-amber-400 mb-2.5">
+            <div className="p-5 bg-red-500/8 border border-red-500/15 rounded-2xl">
+              <div className="flex items-center gap-2 text-red-400 mb-2.5">
                 <Shield size={13} />
                 <span className="text-[10px] font-mono uppercase tracking-widest font-medium">Source Integrity</span>
               </div>
@@ -548,11 +550,12 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
       </AnimatePresence>
 
       {/* Footer */}
-      <footer className="border-t border-line px-6 py-14 bg-base">
+      <footer className="relative border-t-0 px-6 py-14 bg-base overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-[2px]" style={{background: 'linear-gradient(90deg, transparent 0%, #DC2626 30%, #F87171 50%, #DC2626 70%, transparent 100%)'}} />
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
           <div className="col-span-2">
-            <div className="text-2xl font-serif font-bold uppercase tracking-tighter mb-1">TheNewNews</div>
-            <div className="text-[10px] font-mono uppercase tracking-widest text-amber-600/70 mb-4">Autonomous Intelligence Platform</div>
+            <div className="text-2xl font-serif font-bold uppercase tracking-tighter mb-1 gradient-text">TheNewNews</div>
+            <div className="text-[10px] font-mono uppercase tracking-widest text-red-600/70 mb-4">Autonomous Intelligence Platform</div>
             <p className="text-sm opacity-40 max-w-xs leading-relaxed">
               An experimental interface for autonomous information synthesis. 
               Built for the next generation of intelligence consumers.
@@ -597,7 +600,7 @@ function ArticleDetail({ article, onClose }: { article: Article; onClose: () => 
 
   const importanceColors = {
     high: { badge: 'bg-red-50 text-red-600 border-red-100', label: '⚡ Breaking' },
-    medium: { badge: 'bg-amber-50 text-amber-600 border-amber-100', label: '↑ Trending' },
+    medium: { badge: 'bg-red-50 text-red-500 border-red-100', label: '↑ Trending' },
     low: { badge: 'bg-green-50 text-green-600 border-green-100', label: '● Standard' },
   };
 
@@ -628,7 +631,7 @@ function ArticleDetail({ article, onClose }: { article: Article; onClose: () => 
       >
         {/* Reading Progress Bar */}
         <motion.div
-          className="sticky top-0 left-0 right-0 h-[3px] bg-amber-500 origin-left z-50 rounded-full"
+          className="sticky top-0 left-0 right-0 h-[3px] bg-red-500 origin-left z-50 rounded-full"
           style={{ scaleX }}
         />
 
@@ -695,7 +698,7 @@ function ArticleDetail({ article, onClose }: { article: Article; onClose: () => 
 
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-10">
             <div className="prose prose-lg max-w-none">
-              <p className="text-xl md:text-2xl font-serif italic leading-relaxed text-ink/75 mb-8 border-l-4 border-amber-400/60 pl-5">
+              <p className="text-xl md:text-2xl font-serif italic leading-relaxed text-ink/75 mb-8 border-l-4 border-red-400/60 pl-5">
                 {article.summary}
               </p>
               <div className="space-y-5 text-ink/65 leading-relaxed text-base">
@@ -721,18 +724,18 @@ function ArticleDetail({ article, onClose }: { article: Article; onClose: () => 
                     "Emergence of post-human editorial standards"
                   ].map((item, i) => (
                     <li key={i} className="flex gap-2.5 text-xs leading-relaxed text-ink/70">
-                      <Zap size={13} className="shrink-0 text-amber-500 mt-0.5" />
+                      <Zap size={13} className="shrink-0 text-red-500 mt-0.5" />
                       <span>{item}</span>
                     </li>
                   ))}
                 </ul>
               </div>
               
-              <div className="p-5 bg-ink text-base rounded-2xl">
+              <div className="p-5 rounded-2xl text-base" style={{background: 'linear-gradient(160deg, #1a0808 0%, #18181B 100%)'}}>
                 <h4 className="text-[10px] font-mono uppercase tracking-widest text-base/40 mb-3">Agent Confidence</h4>
-                <div className="text-4xl font-serif mb-3 text-green-400">98.4%</div>
+                <div className="text-4xl font-serif mb-3 text-red-400">98.4%</div>
                 <div className="w-full h-1.5 bg-base/10 rounded-full overflow-hidden">
-                  <div className="w-[98.4%] h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-full" />
+                  <div className="w-[98.4%] h-full bg-gradient-to-r from-red-500 to-rose-400 rounded-full" />
                 </div>
                 <div className="mt-2 text-[10px] text-base/30 font-mono">High confidence signal</div>
               </div>
@@ -801,13 +804,13 @@ function ArticleCard({
 }) {
   const importanceBadge = {
     high: { label: 'Breaking', className: 'text-red-600 bg-red-50 border border-red-100' },
-    medium: { label: 'Trending', className: 'text-amber-600 bg-amber-50 border border-amber-100' },
+    medium: { label: 'Trending', className: 'text-red-500 bg-red-50 border border-red-100' },
     low: { label: null, className: '' },
   }[article.importance];
 
   return (
     <motion.div 
-      whileHover={{ backgroundColor: 'rgba(26, 26, 26, 0.025)' }}
+      whileHover={{ backgroundColor: 'rgba(220, 38, 38, 0.025)' }}
       className={cn("group cursor-pointer flex flex-col", className)}
       onClick={onClick}
     >

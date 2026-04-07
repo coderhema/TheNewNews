@@ -6,11 +6,11 @@
   --font-serif: "Playfair Display", serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  --color-base: #F9F8F6;
-  --color-ink: #1A1A1A;
-  --color-line: rgba(26, 26, 26, 0.1);
-  --color-accent: #D97706;
-  --color-accent-light: #FEF3C7;
+  --color-base: #FAFAFA;
+  --color-ink: #18181B;
+  --color-line: rgba(24, 24, 27, 0.09);
+  --color-accent: #DC2626;
+  --color-accent-light: #FEF2F2;
 }
 
 @layer base {
@@ -40,6 +40,19 @@
   @apply bg-ink/30;
 }
 
+/* Red accent top stripe */
+body::before {
+  content: '';
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #DC2626 0%, #F87171 50%, #DC2626 100%);
+  z-index: 9999;
+}
+
 /* Smooth image loading */
 img {
   transition: opacity 0.3s ease;
@@ -52,7 +65,7 @@ img {
 
 /* Gradient text utility */
 .gradient-text {
-  background: linear-gradient(135deg, #1A1A1A 0%, #D97706 100%);
+  background: linear-gradient(135deg, #18181B 0%, #DC2626 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
