@@ -13,15 +13,11 @@ import {
   Zap, 
   Shield, 
   Cpu,
-  ChevronRight,
   TrendingUp,
   Activity,
   Share2,
   Check,
   X,
-  Filter,
-  Calendar,
-  User
 } from 'lucide-react';
 import { format, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import Markdown from 'react-markdown';
@@ -241,38 +237,41 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
   return (
     <div className="min-h-screen flex flex-col selection:bg-ink selection:text-base">
       {/* Top Navigation Rail */}
-      <nav className="border-b border-line px-6 py-4 flex justify-between items-center sticky top-0 bg-base/80 backdrop-blur-md z-50">
+      <nav className="border-b border-line px-6 py-3.5 flex justify-between items-center sticky top-0 bg-base/90 backdrop-blur-md z-50">
         <div className="flex items-center gap-8">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-            <span className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-60">Live Newsroom</span>
+          <div className="flex items-center gap-2.5">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500" />
+            </span>
+            <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-red-600/80 font-medium">Live</span>
           </div>
-          <div className="hidden md:flex gap-6">
-            {['Intelligence', 'Markets', 'Geopolitics', 'Design', 'Science'].map((item) => (
-              <button key={item} className="text-[11px] uppercase tracking-widest font-medium hover:opacity-50 transition-opacity">
+          <div className="hidden md:flex gap-1">
+            {['Intelligence', 'Markets', 'Geopolitics', 'Science'].map((item) => (
+              <button key={item} className="px-3 py-1.5 text-[11px] uppercase tracking-widest font-medium rounded-full hover:bg-ink/5 hover:text-ink transition-all opacity-50 hover:opacity-100">
                 {item}
               </button>
             ))}
           </div>
         </div>
         
-        <div className="flex items-center gap-6">
-          <div className="hidden sm:flex items-center gap-2 font-mono text-[10px] opacity-40">
-            <span>{format(currentTime, 'HH:mm:ss')} UTC</span>
-            <span className="mx-2">/</span>
-            <span>{format(currentTime, 'MMM dd, yyyy')}</span>
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-2 font-mono text-[10px] opacity-40 bg-ink/5 px-3 py-1.5 rounded-full">
+            <span>{format(currentTime, 'HH:mm:ss')}</span>
+            <span className="opacity-40">·</span>
+            <span>{format(currentTime, 'MMM dd')}</span>
           </div>
           <button 
             onClick={() => setIsSearchOpen(!isSearchOpen)}
             className={cn(
-              "p-2 rounded-full transition-colors",
-              isSearchOpen ? "bg-ink text-base" : "hover:bg-ink/5"
+              "p-2 rounded-full transition-all",
+              isSearchOpen ? "bg-ink text-base shadow-md" : "hover:bg-ink/8 text-ink/60 hover:text-ink"
             )}
           >
-            {isSearchOpen ? <X size={18} strokeWidth={1.5} /> : <Search size={18} strokeWidth={1.5} />}
+            {isSearchOpen ? <X size={17} strokeWidth={2} /> : <Search size={17} strokeWidth={1.5} />}
           </button>
-          <button className="p-2 hover:bg-ink/5 rounded-full transition-colors">
-            <Menu size={18} strokeWidth={1.5} />
+          <button className="p-2 hover:bg-ink/8 rounded-full transition-colors text-ink/60 hover:text-ink">
+            <Menu size={17} strokeWidth={1.5} />
           </button>
         </div>
       </nav>
@@ -385,23 +384,31 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
       <main className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_400px] xl:grid-cols-[1fr_480px]">
         {/* Main Feed */}
         <div className="border-r border-line">
-          <header className="px-6 py-12 md:py-20 border-b border-line">
-            <h1 className="text-[12vw] md:text-[8vw] lg:text-[6vw] font-serif font-bold leading-[0.85] tracking-[-0.04em] uppercase">
+          <header className="px-6 py-14 md:py-20 border-b border-line">
+            <div className="flex items-start gap-3 mb-2">
+              <span className="mt-2 px-2.5 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-mono uppercase tracking-widest rounded-full border border-amber-200 font-medium">
+                v4.2 · Live
+              </span>
+            </div>
+            <h1 className="text-[13vw] md:text-[8vw] lg:text-[6vw] font-serif font-bold leading-[0.85] tracking-[-0.04em] uppercase">
               The <br />
-              New <br />
+              <span className="gradient-text">New</span> <br />
               News
             </h1>
             <div className="mt-8 flex flex-wrap gap-4 items-end justify-between">
-              <p className="max-w-md text-sm md:text-base opacity-60 leading-relaxed">
-                Live news curation powered by Poke API intelligence and headlines from real publishers.
+              <p className="max-w-md text-sm md:text-base opacity-55 leading-relaxed">
+                Live news curation powered by AI intelligence and headlines from real publishers worldwide.
               </p>
               <div className="flex gap-2">
-                <div className="px-3 py-1 border border-line rounded-full text-[10px] font-mono uppercase">v4.2.0-live</div>
-                <div className="px-3 py-1 bg-ink text-base rounded-full text-[10px] font-mono uppercase">Agent Active</div>
+                <div className="px-3 py-1.5 bg-ink text-base rounded-full text-[10px] font-mono uppercase flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
+                  Agent Active
+                </div>
               </div>
             </div>
             {articlesError && (
-              <div className="mt-4 text-sm text-red-500">
+              <div className="mt-4 flex items-center gap-2 text-sm text-red-600 bg-red-50 border border-red-100 px-4 py-3 rounded-xl">
+                <span className="text-red-500">⚠</span>
                 {articlesError}
               </div>
             )}
@@ -409,9 +416,28 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
 
           <div className="grid grid-cols-1 md:grid-cols-2">
             {isLoadingArticles ? (
-              <div className="col-span-2 p-20 text-center">
-                <div className="text-4xl font-serif italic opacity-20 mb-4">Loading live news.</div>
-                <p className="text-sm opacity-40 font-mono uppercase tracking-widest">Fetching headlines from real sources.</p>
+              <div className="col-span-2 p-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className={cn("p-8 border-b border-line animate-pulse", i % 2 === 0 ? "md:border-r" : "")}>
+                      <div className="flex gap-2 mb-6">
+                        <div className="h-3 w-16 bg-ink/8 rounded-full" />
+                        <div className="h-3 w-12 bg-ink/5 rounded-full" />
+                      </div>
+                      <div className="space-y-2 mb-4">
+                        <div className="h-6 bg-ink/8 rounded w-full" />
+                        <div className="h-6 bg-ink/8 rounded w-4/5" />
+                        <div className="h-6 bg-ink/5 rounded w-3/5" />
+                      </div>
+                      <div className="space-y-2">
+                        <div className="h-3 bg-ink/5 rounded w-full" />
+                        <div className="h-3 bg-ink/5 rounded w-5/6" />
+                        <div className="h-3 bg-ink/5 rounded w-4/6" />
+                      </div>
+                      {i === 0 && <div className="mt-6 h-40 bg-ink/5 rounded-xl" />}
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : filteredArticles.length > 0 ? (
               filteredArticles.map((article, idx) => (
@@ -428,73 +454,84 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
               ))
             ) : (
               <div className="col-span-2 p-20 text-center">
-                <div className="text-4xl font-serif italic opacity-20 mb-4">No intelligence matches found.</div>
-                <p className="text-sm opacity-40 font-mono uppercase tracking-widest">Broaden your search parameters.</p>
+                <div className="text-5xl mb-4 opacity-20">◎</div>
+                <div className="text-2xl font-serif italic opacity-30 mb-3">No results found.</div>
+                <p className="text-sm opacity-40 font-mono uppercase tracking-widest">Try adjusting your search or filters.</p>
               </div>
             )}
           </div>
         </div>
 
         {/* AI Digest Sidebar */}
-        <aside className="bg-ink text-base p-6 md:p-10 sticky top-[69px] h-[calc(100vh-69px)] overflow-y-auto">
-          <div className="flex items-center justify-between mb-12">
+        <aside className="bg-ink text-base p-6 md:p-10 sticky top-[61px] h-[calc(100vh-61px)] overflow-y-auto">
+          <div className="flex items-center justify-between mb-10">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-base/10 rounded-lg flex items-center justify-center">
-                <Cpu size={16} className="text-base/80" />
+              <div className="w-9 h-9 bg-amber-500/20 rounded-xl flex items-center justify-center border border-amber-500/20">
+                <Cpu size={15} className="text-amber-400" />
               </div>
               <div>
-                <h2 className="text-xs font-mono uppercase tracking-widest opacity-50">Trending AI Summaries</h2>
-                <div className="text-[10px] opacity-30">Top 8 Stories</div>
+                <h2 className="text-xs font-mono uppercase tracking-widest text-base/60">AI Digest</h2>
+                <div className="text-[10px] text-base/30 mt-0.5">Top stories · Summarized</div>
               </div>
             </div>
             <button 
               onClick={() => setArticles([...articles])}
               disabled={isGeneratingDigest}
-              className="p-2 hover:bg-base/10 rounded-full transition-colors disabled:opacity-30"
+              className="p-2 hover:bg-base/10 rounded-full transition-colors disabled:opacity-30 border border-base/10 hover:border-base/20"
+              title="Refresh digest"
             >
-              <Activity size={16} className={cn(isGeneratingDigest && "animate-spin")} />
+              <Activity size={14} className={cn(isGeneratingDigest && "animate-spin")} />
             </button>
           </div>
 
-          <div className="space-y-12">
+          <div className="space-y-10">
             {isGeneratingDigest ? (
-              <div className="space-y-4 animate-pulse">
-                <div className="h-4 bg-base/10 w-3/4 rounded" />
-                <div className="h-4 bg-base/10 w-1/2 rounded" />
-                <div className="h-32 bg-base/5 w-full rounded-xl" />
+              <div className="space-y-5 animate-pulse">
+                <div className="h-3 bg-base/10 w-2/3 rounded-full" />
+                <div className="space-y-2">
+                  <div className="h-2.5 bg-base/8 w-full rounded-full" />
+                  <div className="h-2.5 bg-base/8 w-5/6 rounded-full" />
+                  <div className="h-2.5 bg-base/6 w-4/6 rounded-full" />
+                </div>
+                <div className="h-24 bg-base/5 w-full rounded-xl" />
+                <div className="space-y-2">
+                  <div className="h-2.5 bg-base/8 w-full rounded-full" />
+                  <div className="h-2.5 bg-base/6 w-3/4 rounded-full" />
+                </div>
+                <div className="h-24 bg-base/5 w-full rounded-xl" />
               </div>
             ) : (
-              <div className="prose prose-invert prose-sm max-w-none">
-                <div className="markdown-body opacity-90 leading-relaxed font-light">
+              <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:font-bold prose-headings:tracking-tight prose-a:text-amber-400 prose-strong:text-base/90">
+                <div className="opacity-85 leading-relaxed font-light text-sm">
                   <Markdown>{aiDigest}</Markdown>
                 </div>
               </div>
             )}
 
-            <div className="pt-12 border-t border-base/10">
-              <h3 className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-40 mb-6">Market Sentiment</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-base/5 rounded-xl border border-base/10">
-                  <div className="text-[10px] opacity-40 uppercase mb-1">Tech Index</div>
-                  <div className="text-xl font-serif">+4.2%</div>
+            <div className="pt-8 border-t border-base/10">
+              <h3 className="text-[10px] font-mono uppercase tracking-[0.2em] text-base/40 mb-5">Market Pulse</h3>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-4 bg-base/5 rounded-2xl border border-base/8 hover:bg-base/8 transition-colors">
+                  <div className="text-[10px] text-base/40 uppercase tracking-wide mb-2">Tech Index</div>
+                  <div className="text-xl font-serif text-green-400">+4.2%</div>
+                  <div className="text-[10px] text-base/30 mt-1 font-mono">↑ Trending up</div>
                 </div>
-                <div className="p-4 bg-base/5 rounded-xl border border-base/10">
-                  <div className="text-[10px] opacity-40 uppercase mb-1">Volatility</div>
+                <div className="p-4 bg-base/5 rounded-2xl border border-base/8 hover:bg-base/8 transition-colors">
+                  <div className="text-[10px] text-base/40 uppercase tracking-wide mb-2">Volatility</div>
                   <div className="text-xl font-serif text-red-400">High</div>
+                  <div className="text-[10px] text-base/30 mt-1 font-mono">⚡ Watch closely</div>
                 </div>
               </div>
             </div>
 
-            <div className="pt-8">
-              <div className="p-6 bg-blue-500/10 border border-blue-500/20 rounded-2xl">
-                <div className="flex items-center gap-2 text-blue-400 mb-2">
-                  <Shield size={14} />
-                  <span className="text-[10px] font-mono uppercase tracking-widest">Security Alert</span>
-                </div>
-                <p className="text-xs leading-relaxed opacity-70">
-                  Live headlines are refreshed from public news providers and summarized with the Poke API.
-                </p>
+            <div className="p-5 bg-amber-500/8 border border-amber-500/15 rounded-2xl">
+              <div className="flex items-center gap-2 text-amber-400 mb-2.5">
+                <Shield size={13} />
+                <span className="text-[10px] font-mono uppercase tracking-widest font-medium">Source Integrity</span>
               </div>
+              <p className="text-xs leading-relaxed text-base/50">
+                Headlines are fetched from verified publishers and summarized by AI. Always check original sources for full coverage.
+              </p>
             </div>
           </div>
         </aside>
@@ -511,37 +548,36 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
       </AnimatePresence>
 
       {/* Footer */}
-      <footer className="border-t border-line px-6 py-12 bg-base">
+      <footer className="border-t border-line px-6 py-14 bg-base">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
           <div className="col-span-2">
-            <div className="text-2xl font-serif font-bold uppercase tracking-tighter mb-4">TheNewNews</div>
+            <div className="text-2xl font-serif font-bold uppercase tracking-tighter mb-1">TheNewNews</div>
+            <div className="text-[10px] font-mono uppercase tracking-widest text-amber-600/70 mb-4">Autonomous Intelligence Platform</div>
             <p className="text-sm opacity-40 max-w-xs leading-relaxed">
-              A experimental interface for autonomous information synthesis. 
-              Built for the next generation of intelligence.
+              An experimental interface for autonomous information synthesis. 
+              Built for the next generation of intelligence consumers.
             </p>
           </div>
           <div>
-            <h4 className="text-[10px] font-mono uppercase tracking-widest opacity-40 mb-6">Protocols</h4>
-            <ul className="space-y-3 text-xs opacity-60">
-              <li>Editorial Standards</li>
-              <li>Agent Transparency</li>
-              <li>Data Integrity</li>
-              <li>Privacy Policy</li>
+            <h4 className="text-[10px] font-mono uppercase tracking-widest opacity-40 mb-5">Protocols</h4>
+            <ul className="space-y-3 text-xs opacity-50">
+              {['Editorial Standards', 'Agent Transparency', 'Data Integrity', 'Privacy Policy'].map(item => (
+                <li key={item} className="hover:opacity-80 cursor-pointer transition-opacity">{item}</li>
+              ))}
             </ul>
           </div>
           <div>
-            <h4 className="text-[10px] font-mono uppercase tracking-widest opacity-40 mb-6">Connect</h4>
-            <ul className="space-y-3 text-xs opacity-60">
-              <li>API Access</li>
-              <li>Newsletter</li>
-              <li>Terminal Login</li>
-              <li>Support</li>
+            <h4 className="text-[10px] font-mono uppercase tracking-widest opacity-40 mb-5">Connect</h4>
+            <ul className="space-y-3 text-xs opacity-50">
+              {['API Access', 'Newsletter', 'Terminal Login', 'Support'].map(item => (
+                <li key={item} className="hover:opacity-80 cursor-pointer transition-opacity">{item}</li>
+              ))}
             </ul>
           </div>
         </div>
-        <div className="mt-20 pt-8 border-t border-line flex flex-wrap justify-between gap-4 text-[10px] font-mono opacity-30 uppercase tracking-widest">
+        <div className="mt-16 pt-6 border-t border-line flex flex-wrap justify-between gap-4 text-[10px] font-mono opacity-25 uppercase tracking-widest">
           <span>© 2026 TheNewNews Corp.</span>
-          <span>Encrypted Connection / AES-256</span>
+          <span>Encrypted · AES-256</span>
         </div>
       </footer>
     </div>
@@ -559,116 +595,146 @@ function ArticleDetail({ article, onClose }: { article: Article; onClose: () => 
     restDelta: 0.001
   });
 
+  const importanceColors = {
+    high: { badge: 'bg-red-50 text-red-600 border-red-100', label: '⚡ Breaking' },
+    medium: { badge: 'bg-amber-50 text-amber-600 border-amber-100', label: '↑ Trending' },
+    low: { badge: 'bg-green-50 text-green-600 border-green-100', label: '● Standard' },
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   return (
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-12 bg-base/95 backdrop-blur-xl"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10 bg-ink/40 backdrop-blur-xl"
+      onClick={onClose}
     >
       <motion.div 
         ref={scrollRef}
-        initial={{ y: 40, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 40, opacity: 0 }}
-        className="w-full max-w-5xl bg-base border border-line h-full overflow-y-auto relative shadow-2xl rounded-3xl"
+        initial={{ y: 30, opacity: 0, scale: 0.98 }}
+        animate={{ y: 0, opacity: 1, scale: 1 }}
+        exit={{ y: 30, opacity: 0, scale: 0.98 }}
+        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+        className="w-full max-w-5xl bg-base border border-line/50 h-full overflow-y-auto relative shadow-2xl rounded-3xl"
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Reading Progress Bar */}
         <motion.div
-          className="sticky top-0 left-0 right-0 h-1 bg-ink origin-left z-50"
+          className="sticky top-0 left-0 right-0 h-[3px] bg-amber-500 origin-left z-50 rounded-full"
           style={{ scaleX }}
         />
 
         <button 
           onClick={onClose}
-          className="absolute top-8 right-8 p-3 hover:bg-ink/5 rounded-full z-10 transition-colors"
+          className="absolute top-6 right-6 p-2.5 hover:bg-ink/8 rounded-full z-10 transition-colors border border-line/50 hover:border-line"
+          aria-label="Close"
         >
-          <ChevronRight size={24} className="rotate-90" />
+          <X size={18} strokeWidth={1.5} />
         </button>
 
-        <div className="p-8 md:p-20">
-          <div className="flex items-center gap-4 mb-8">
+        {article.imageUrl && (
+          <div className="overflow-hidden rounded-t-3xl">
+            <img
+              src={article.imageUrl}
+              alt={article.title}
+              className="w-full aspect-[21/9] object-cover"
+              referrerPolicy="no-referrer"
+            />
+          </div>
+        )}
+
+        <div className="p-8 md:p-14">
+          <div className="flex items-center gap-2.5 mb-7 flex-wrap">
             <span className="px-3 py-1 bg-ink text-base text-[10px] font-mono uppercase rounded-full">
               {article.category}
             </span>
-            <span className="px-3 py-1 border border-line text-[10px] font-mono uppercase rounded-full opacity-60">
+            <span className={cn(
+              "px-3 py-1 text-[10px] font-mono uppercase rounded-full border",
+              importanceColors[article.importance].badge
+            )}>
+              {importanceColors[article.importance].label}
+            </span>
+            <span className="px-3 py-1 border border-line text-[10px] font-mono uppercase rounded-full text-ink/50">
               {article.source}
             </span>
-            <span className="text-[10px] font-mono opacity-40 uppercase tracking-widest">
+            <span className="text-[10px] font-mono text-ink/35 uppercase tracking-widest ml-auto">
               {format(new Date(article.timestamp), 'MMM dd, yyyy')}
             </span>
           </div>
 
-          <h2 className="text-4xl md:text-7xl font-serif font-bold leading-[0.95] tracking-tight mb-12">
+          <h2 className="text-3xl md:text-6xl font-serif font-bold leading-[1] tracking-tight mb-10">
             {article.title}
           </h2>
 
-          <div className="flex items-center gap-6 mb-12 pb-12 border-b border-line">
+          <div className="flex items-center gap-5 mb-10 pb-8 border-b border-line">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-ink/5 rounded-full flex items-center justify-center font-serif italic text-lg">
+              <div className="w-10 h-10 bg-ink/8 border border-line rounded-full flex items-center justify-center font-serif italic text-lg">
                 {article.author[0]}
               </div>
               <div>
-                <div className="text-xs font-semibold">{article.author}</div>
-                <div className="text-[10px] opacity-40 uppercase">Senior Intelligence Analyst</div>
+                <div className="text-sm font-semibold">{article.author}</div>
+                <div className="text-[10px] text-ink/40 uppercase tracking-wide">Intelligence Analyst</div>
               </div>
             </div>
             <div className="h-8 w-px bg-line" />
-            <div className="flex items-center gap-2 opacity-40">
-              <Clock size={14} />
+            <div className="flex items-center gap-1.5 text-ink/40">
+              <Clock size={13} />
               <span className="text-[10px] font-mono uppercase">{article.readingTime} read</span>
             </div>
             <div className="h-8 w-px bg-line" />
             <ShareButton article={article} />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-10">
             <div className="prose prose-lg max-w-none">
-              <p className="text-xl md:text-2xl font-serif italic leading-relaxed opacity-80 mb-8">
+              <p className="text-xl md:text-2xl font-serif italic leading-relaxed text-ink/75 mb-8 border-l-4 border-amber-400/60 pl-5">
                 {article.summary}
               </p>
-              <div className="space-y-6 opacity-70 leading-relaxed">
+              <div className="space-y-5 text-ink/65 leading-relaxed text-base">
                 <p>
                   In a world increasingly defined by the invisible hand of algorithmic governance, the emergence of autonomous newsrooms represents a pivotal shift in how information is synthesized and distributed. The traditional editorial model, long plagued by human bias and the constraints of 24-hour news cycles, is giving way to a more resilient, data-driven architecture.
                 </p>
                 <p>
                   This transition is not merely technical; it is philosophical. By leveraging decentralized intelligence clusters, we can now monitor global shifts with a granularity that was previously impossible. From the subtle fluctuations in quantum computing stability to the macro-economic implications of AI-curated sovereign wealth, the "Autonomous Newsroom" provides a lens into the future that is both sharp and uncompromising.
                 </p>
-                <img 
-                  src={article.imageUrl} 
-                  alt={article.title}
-                  className="w-full aspect-video object-cover rounded-2xl my-12"
-                  referrerPolicy="no-referrer"
-                />
                 <p>
                   As we move further into this silicon renaissance, the role of the reader also evolves. It is no longer enough to be a passive consumer of information. The modern intellectual must engage with these autonomous digests as a partner in sense-making, navigating the complex interplay of risk vectors and systemic shifts that define our era.
                 </p>
               </div>
             </div>
 
-            <aside className="space-y-8">
-              <div className="p-6 bg-ink/5 rounded-2xl border border-line">
-                <h4 className="text-[10px] font-mono uppercase tracking-widest opacity-40 mb-4">Key Implications</h4>
-                <ul className="space-y-4">
+            <aside className="space-y-6">
+              <div className="p-5 bg-ink/[0.03] rounded-2xl border border-line">
+                <h4 className="text-[10px] font-mono uppercase tracking-widest text-ink/40 mb-4">Key Implications</h4>
+                <ul className="space-y-3.5">
                   {[
                     "Structural decoupling of human oversight",
                     "Accelerated cross-industry convergence",
                     "Emergence of post-human editorial standards"
                   ].map((item, i) => (
-                    <li key={i} className="flex gap-3 text-xs leading-relaxed">
-                      <Zap size={14} className="shrink-0 text-ink/40" />
+                    <li key={i} className="flex gap-2.5 text-xs leading-relaxed text-ink/70">
+                      <Zap size={13} className="shrink-0 text-amber-500 mt-0.5" />
                       <span>{item}</span>
                     </li>
                   ))}
                 </ul>
               </div>
               
-              <div className="p-6 bg-ink text-base rounded-2xl">
-                <h4 className="text-[10px] font-mono uppercase tracking-widest opacity-40 mb-4">Agent Confidence</h4>
-                <div className="text-3xl font-serif mb-2">98.4%</div>
-                <div className="w-full h-1 bg-base/10 rounded-full overflow-hidden">
-                  <div className="w-[98.4%] h-full bg-base" />
+              <div className="p-5 bg-ink text-base rounded-2xl">
+                <h4 className="text-[10px] font-mono uppercase tracking-widest text-base/40 mb-3">Agent Confidence</h4>
+                <div className="text-4xl font-serif mb-3 text-green-400">98.4%</div>
+                <div className="w-full h-1.5 bg-base/10 rounded-full overflow-hidden">
+                  <div className="w-[98.4%] h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-full" />
                 </div>
+                <div className="mt-2 text-[10px] text-base/30 font-mono">High confidence signal</div>
               </div>
             </aside>
           </div>
@@ -733,66 +799,87 @@ function ArticleCard({
   className?: string;
   onClick: () => void;
 }) {
+  const importanceBadge = {
+    high: { label: 'Breaking', className: 'text-red-600 bg-red-50 border border-red-100' },
+    medium: { label: 'Trending', className: 'text-amber-600 bg-amber-50 border border-amber-100' },
+    low: { label: null, className: '' },
+  }[article.importance];
+
   return (
     <motion.div 
-      whileHover={{ backgroundColor: 'rgba(26, 26, 26, 0.02)' }}
+      whileHover={{ backgroundColor: 'rgba(26, 26, 26, 0.025)' }}
       className={cn("group cursor-pointer flex flex-col", className)}
       onClick={onClick}
     >
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <span className="text-[10px] font-mono opacity-40 uppercase tracking-widest">
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[10px] font-mono text-ink/50 uppercase tracking-widest">
             {article.category}
           </span>
-          <span className="text-[10px] font-mono opacity-40 uppercase tracking-widest px-2 border-l border-line">
+          <span className="text-ink/20">·</span>
+          <span className="text-[10px] font-mono text-ink/40 uppercase tracking-widest">
             {article.source}
           </span>
-          {article.importance === 'high' && (
-            <div className="flex items-center gap-1 text-red-500">
-              <TrendingUp size={10} />
-              <span className="text-[10px] font-mono uppercase">Critical</span>
-            </div>
+          {importanceBadge.label && (
+            <span className={cn(
+              "flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono uppercase font-medium",
+              importanceBadge.className
+            )}>
+              <TrendingUp size={9} />
+              {importanceBadge.label}
+            </span>
           )}
         </div>
-        <ArrowUpRight size={16} className="opacity-0 group-hover:opacity-40 transition-opacity" />
+        <ArrowUpRight size={15} className="opacity-0 group-hover:opacity-30 transition-opacity shrink-0" />
       </div>
 
-      <h3 className={cn(
-        "font-serif font-bold leading-[0.95] tracking-tight group-hover:opacity-70 transition-opacity",
-        isFeatured ? "text-4xl md:text-6xl mb-8" : "text-2xl md:text-3xl mb-6"
-      )}>
-        {article.title}
-      </h3>
-
-      <p className={cn(
-        "opacity-60 leading-relaxed mb-8 line-clamp-3",
-        isFeatured ? "text-lg" : "text-sm"
-      )}>
-        {article.summary}
-      </p>
-
-      {isFeatured && (
-        <div className="mb-8 overflow-hidden rounded-2xl">
+      {isFeatured && article.imageUrl && (
+        <div className="mb-6 overflow-hidden rounded-2xl border border-line/50">
           <img 
             src={article.imageUrl} 
             alt={article.title}
-            className="w-full aspect-[21/9] object-cover group-hover:scale-105 transition-transform duration-700"
+            className="w-full aspect-[21/9] object-cover article-img-reveal"
             referrerPolicy="no-referrer"
           />
         </div>
       )}
 
-      <div className="mt-auto flex items-center justify-between pt-6 border-t border-line/5">
+      {!isFeatured && article.imageUrl && (
+        <div className="mb-5 overflow-hidden rounded-xl border border-line/50">
+          <img 
+            src={article.imageUrl} 
+            alt={article.title}
+            className="w-full aspect-[16/7] object-cover article-img-reveal"
+            referrerPolicy="no-referrer"
+          />
+        </div>
+      )}
+
+      <h3 className={cn(
+        "font-serif font-bold leading-[1] tracking-tight group-hover:opacity-65 transition-opacity",
+        isFeatured ? "text-4xl md:text-5xl mb-6" : "text-xl md:text-2xl mb-4"
+      )}>
+        {article.title}
+      </h3>
+
+      <p className={cn(
+        "text-ink/55 leading-relaxed mb-6 line-clamp-3",
+        isFeatured ? "text-base" : "text-sm"
+      )}>
+        {article.summary}
+      </p>
+
+      <div className="mt-auto flex items-center justify-between pt-4 border-t border-line/40">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 bg-ink/5 rounded-full flex items-center justify-center text-[10px] font-serif italic">
+          <div className="w-6 h-6 bg-ink/8 rounded-full flex items-center justify-center text-[10px] font-serif italic">
             {article.author[0]}
           </div>
-          <span className="text-[10px] font-semibold opacity-60">{article.author}</span>
+          <span className="text-[10px] font-semibold text-ink/50">{article.author}</span>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <ShareButton article={article} />
-          <div className="flex items-center gap-2 opacity-30">
-            <Clock size={12} />
+          <div className="flex items-center gap-1.5 text-ink/30">
+            <Clock size={11} />
             <span className="text-[10px] font-mono uppercase">{article.readingTime}</span>
           </div>
         </div>
