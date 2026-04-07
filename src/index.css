@@ -6,11 +6,13 @@
   --font-serif: "Playfair Display", serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  --color-base: #F9F8F6;
-  --color-ink: #1A1A1A;
-  --color-line: rgba(26, 26, 26, 0.1);
-  --color-accent: #D97706;
-  --color-accent-light: #FEF3C7;
+  --color-base: #FAFAFA;
+  --color-ink: #18181B;
+  --color-line: rgba(24, 24, 27, 0.09);
+  --color-accent: #DC2626;
+  --color-accent-light: #FEF2F2;
+  --color-accent-mid: #F87171;
+  --color-sidebar: #1A0808;
 }
 
 @layer base {
@@ -40,6 +42,19 @@
   @apply bg-ink/30;
 }
 
+/* Red accent top stripe */
+body::before {
+  content: '';
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-accent-mid) 50%, var(--color-accent) 100%);
+  z-index: 9999;
+}
+
 /* Smooth image loading */
 img {
   transition: opacity 0.3s ease;
@@ -52,10 +67,34 @@ img {
 
 /* Gradient text utility */
 .gradient-text {
-  background: linear-gradient(135deg, #1A1A1A 0%, #D97706 100%);
+  background: linear-gradient(135deg, var(--color-ink) 0%, var(--color-accent) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* Sidebar gradient background */
+.sidebar-bg {
+  background: linear-gradient(160deg, var(--color-sidebar) 0%, var(--color-ink) 60%);
+}
+
+/* Accent glow overlays */
+.accent-glow-hero {
+  background: radial-gradient(ellipse 60% 50% at 80% 50%, color-mix(in srgb, var(--color-accent) 6%, transparent) 0%, transparent 70%);
+}
+
+.accent-glow-sidebar {
+  background: radial-gradient(ellipse 80% 40% at 50% 0%, color-mix(in srgb, var(--color-accent) 12%, transparent) 0%, transparent 60%);
+}
+
+/* Footer accent border */
+.footer-accent-border {
+  background: linear-gradient(90deg, transparent 0%, var(--color-accent) 30%, var(--color-accent-mid) 50%, var(--color-accent) 70%, transparent 100%);
+}
+
+/* Dark sidebar panel */
+.sidebar-panel-bg {
+  background: linear-gradient(160deg, var(--color-sidebar) 0%, var(--color-ink) 100%);
 }
 
 /* Article card image reveal */
