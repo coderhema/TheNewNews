@@ -83,6 +83,9 @@ export default function App() {
   const [selectedAuthor, setSelectedAuthor] = useState<string>('All');
   const [dateRange, setDateRange] = useState<{ start: string; end: string }>({ start: '', end: '' });
 
+  // Mobile Menu State
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   useEffect(() => {
     updatePageMetadata(null);
   }, []);
@@ -270,11 +273,90 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
           >
             {isSearchOpen ? <X size={17} strokeWidth={2} /> : <Search size={17} strokeWidth={1.5} />}
           </button>
-          <button className="p-2 hover:bg-ink/8 rounded-full transition-colors text-ink/60 hover:text-ink">
+          <button
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="p-2 hover:bg-ink/8 rounded-full transition-colors text-ink/60 hover:text-ink"
+            aria-label="Open menu"
+          >
             <Menu size={17} strokeWidth={1.5} />
           </button>
         </div>
       </nav>
+
+      {/* Mobile Navigation Drawer */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[200] bg-ink/50 backdrop-blur-sm"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+            {/* Drawer panel */}
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 280 }}
+              className="fixed top-0 right-0 bottom-0 z-[201] w-72 sidebar-bg flex flex-col shadow-2xl"
+            >
+              {/* Accent glow */}
+              <div className="absolute inset-0 pointer-events-none accent-glow-sidebar" />
+
+              {/* Header */}
+              <div className="relative z-10 flex items-center justify-between px-6 py-5 border-b border-base/10">
+                <span className="text-base font-serif font-bold uppercase tracking-tighter text-base/90 gradient-text">
+                  TheNewNews
+                </span>
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-2 hover:bg-base/10 rounded-full transition-colors text-base/60 hover:text-base border border-base/10 hover:border-base/20"
+                  aria-label="Close menu"
+                >
+                  <X size={16} strokeWidth={1.5} />
+                </button>
+              </div>
+
+              {/* Live indicator + clock */}
+              <div className="relative z-10 flex items-center justify-between px-6 py-4 border-b border-base/10">
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                  </span>
+                  <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-red-400 font-medium">Live</span>
+                </div>
+                <span className="font-mono text-[10px] text-base/40">
+                  {format(currentTime, 'HH:mm:ss')} · {format(currentTime, 'MMM dd')}
+                </span>
+              </div>
+
+              {/* Nav items */}
+              <nav className="relative z-10 flex-1 px-4 py-6 space-y-1">
+                {['Intelligence', 'Markets', 'Geopolitics', 'Science'].map((item) => (
+                  <button
+                    key={item}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full text-left px-4 py-3 rounded-xl text-sm font-mono uppercase tracking-widest text-base/60 hover:text-base hover:bg-base/10 transition-all border border-transparent hover:border-base/10"
+                  >
+                    {item}
+                  </button>
+                ))}
+              </nav>
+
+              {/* Footer */}
+              <div className="relative z-10 px-6 py-5 border-t border-base/10">
+                <p className="text-[10px] font-mono text-base/30 uppercase tracking-widest">
+                  Autonomous Intelligence Platform
+                </p>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Search and Filter Overlay */}
       <AnimatePresence>
@@ -415,12 +497,12 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
             )}
           </header>
 
-          <div className="grid grid-cols-1 md:grid-cols-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 p-5 md:p-8">
             {isLoadingArticles ? (
-              <div className="col-span-2 p-12">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
+              <div className="col-span-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {[...Array(4)].map((_, i) => (
-                    <div key={i} className={cn("p-8 border-b border-line animate-pulse", i % 2 === 0 ? "md:border-r" : "")}>
+                    <div key={i} className="p-8 border border-line rounded-2xl animate-pulse bg-white">
                       <div className="flex gap-2 mb-6">
                         <div className="h-3 w-16 bg-ink/8 rounded-full" />
                         <div className="h-3 w-12 bg-ink/5 rounded-full" />
@@ -446,10 +528,7 @@ Format the output in clean Markdown as a list of "Top Trending Summaries".`,
                   key={article.id} 
                   article={article} 
                   isFeatured={idx === 0 && !searchQuery}
-                  className={cn(
-                    "border-b border-line p-6 md:p-10",
-                    idx % 2 === 0 ? "md:border-r" : ""
-                  )}
+                  className={idx === 0 && !searchQuery ? "md:col-span-2" : ""}
                   onClick={() => setSelectedArticle(article)}
                 />
               ))
@@ -802,88 +881,114 @@ function ArticleCard({
   className?: string;
   onClick: () => void;
 }) {
+  const categoryColors: Record<string, { bg: string; text: string; border: string; stripe: string }> = {
+    Technology:  { bg: 'bg-blue-50',   text: 'text-blue-700',   border: 'border-blue-100',  stripe: 'bg-blue-500'   },
+    Markets:     { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100', stripe: 'bg-emerald-500' },
+    Geopolitics: { bg: 'bg-amber-50',  text: 'text-amber-700',  border: 'border-amber-100', stripe: 'bg-amber-500'  },
+    Science:     { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-100', stripe: 'bg-violet-500' },
+    default:     { bg: 'bg-red-50',    text: 'text-red-700',    border: 'border-red-100',   stripe: 'bg-red-500'    },
+  };
+  const catColor = categoryColors[article.category] ?? categoryColors.default;
+
   const importanceBadge = {
-    high: { label: 'Breaking', className: 'text-red-600 bg-red-50 border border-red-100' },
-    medium: { label: 'Trending', className: 'text-red-500 bg-red-50 border border-red-100' },
+    high: { label: 'Breaking', className: 'text-red-600 bg-red-50 border border-red-200' },
+    medium: { label: 'Trending', className: 'text-sky-600 bg-sky-50 border border-sky-200' },
     low: { label: null, className: '' },
   }[article.importance];
 
   return (
     <motion.div 
-      whileHover={{ backgroundColor: 'rgba(220, 38, 38, 0.025)' }}
-      className={cn("group cursor-pointer flex flex-col", className)}
+      whileHover={{ y: -2, boxShadow: '0 8px 32px rgba(0,0,0,0.09)' }}
+      transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+      className={cn(
+        "group cursor-pointer flex flex-col relative bg-white border border-line/60 rounded-2xl overflow-hidden shadow-sm p-0",
+        className
+      )}
       onClick={onClick}
     >
-      <div className="flex items-center justify-between mb-5">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[10px] font-mono text-ink/50 uppercase tracking-widest">
-            {article.category}
-          </span>
-          <span className="text-ink/20">·</span>
-          <span className="text-[10px] font-mono text-ink/40 uppercase tracking-widest">
-            {article.source}
-          </span>
-          {importanceBadge.label && (
+      {/* Category colour stripe */}
+      <div className={cn("h-1 w-full shrink-0", catColor.stripe)} />
+
+      <div className="flex flex-col flex-1 p-6 md:p-8">
+        {/* Meta row */}
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className={cn(
-              "flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono uppercase font-medium",
-              importanceBadge.className
+              "px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-widest font-semibold border",
+              catColor.bg, catColor.text, catColor.border
             )}>
-              <TrendingUp size={9} />
-              {importanceBadge.label}
+              {article.category}
             </span>
-          )}
-        </div>
-        <ArrowUpRight size={15} className="opacity-0 group-hover:opacity-30 transition-opacity shrink-0" />
-      </div>
-
-      {isFeatured && article.imageUrl && (
-        <div className="mb-6 overflow-hidden rounded-2xl border border-line/50">
-          <img 
-            src={article.imageUrl} 
-            alt={article.title}
-            className="w-full aspect-[21/9] object-cover article-img-reveal"
-            referrerPolicy="no-referrer"
-          />
-        </div>
-      )}
-
-      {!isFeatured && article.imageUrl && (
-        <div className="mb-5 overflow-hidden rounded-xl border border-line/50">
-          <img 
-            src={article.imageUrl} 
-            alt={article.title}
-            className="w-full aspect-[16/7] object-cover article-img-reveal"
-            referrerPolicy="no-referrer"
-          />
-        </div>
-      )}
-
-      <h3 className={cn(
-        "font-serif font-bold leading-[1] tracking-tight group-hover:opacity-65 transition-opacity",
-        isFeatured ? "text-4xl md:text-5xl mb-6" : "text-xl md:text-2xl mb-4"
-      )}>
-        {article.title}
-      </h3>
-
-      <p className={cn(
-        "text-ink/55 leading-relaxed mb-6 line-clamp-3",
-        isFeatured ? "text-base" : "text-sm"
-      )}>
-        {article.summary}
-      </p>
-
-      <div className="mt-auto flex items-center justify-between pt-4 border-t border-line/40">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 bg-ink/8 rounded-full flex items-center justify-center text-[10px] font-serif italic">
-            {article.author[0]}
+            <span className="text-[10px] font-mono text-ink/40 uppercase tracking-widest">{article.source}</span>
+            {importanceBadge.label && (
+              <span className={cn(
+                "flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono uppercase font-semibold",
+                importanceBadge.className
+              )}>
+                <TrendingUp size={9} />
+                {importanceBadge.label}
+              </span>
+            )}
           </div>
-          <span className="text-[10px] font-semibold text-ink/50">{article.author}</span>
+          <ArrowUpRight size={15} className="opacity-0 group-hover:opacity-40 transition-opacity shrink-0 text-ink" />
         </div>
-        <div className="flex items-center gap-3">
-          <ShareButton article={article} />
-          <div className="flex items-center gap-1.5 text-ink/30">
-            <Clock size={11} />
-            <span className="text-[10px] font-mono uppercase">{article.readingTime}</span>
+
+        {/* Featured image */}
+        {isFeatured && article.imageUrl && (
+          <div className="mb-5 overflow-hidden rounded-xl border border-line/40">
+            <img 
+              src={article.imageUrl} 
+              alt={article.title}
+              className="w-full aspect-[21/9] object-cover article-img-reveal"
+              referrerPolicy="no-referrer"
+            />
+          </div>
+        )}
+
+        {!isFeatured && article.imageUrl && (
+          <div className="mb-4 overflow-hidden rounded-lg border border-line/40">
+            <img 
+              src={article.imageUrl} 
+              alt={article.title}
+              className="w-full aspect-[16/7] object-cover article-img-reveal"
+              referrerPolicy="no-referrer"
+            />
+          </div>
+        )}
+
+        {/* Title */}
+        <h3 className={cn(
+          "font-serif font-bold leading-tight tracking-tight text-ink group-hover:opacity-70 transition-opacity",
+          isFeatured ? "text-3xl md:text-4xl mb-4" : "text-xl md:text-2xl mb-3"
+        )}>
+          {article.title}
+        </h3>
+
+        {/* Summary */}
+        <p className={cn(
+          "text-ink/60 leading-relaxed mb-5 line-clamp-3",
+          isFeatured ? "text-base" : "text-sm"
+        )}>
+          {article.summary}
+        </p>
+
+        {/* Footer row */}
+        <div className="mt-auto flex items-center justify-between pt-4 border-t border-line/50">
+          <div className="flex items-center gap-2">
+            <div className={cn(
+              "w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-serif font-bold border",
+              catColor.bg, catColor.text, catColor.border
+            )}>
+              {article.author[0]}
+            </div>
+            <span className="text-[11px] font-semibold text-ink/60">{article.author}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <ShareButton article={article} />
+            <div className="flex items-center gap-1.5 text-ink/35">
+              <Clock size={11} />
+              <span className="text-[10px] font-mono uppercase">{article.readingTime}</span>
+            </div>
           </div>
         </div>
       </div>
